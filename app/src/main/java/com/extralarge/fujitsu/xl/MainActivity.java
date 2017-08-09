@@ -195,7 +195,6 @@ public class MainActivity extends AppCompatActivity {
 
         mDrawerToggle.syncState();
 
-
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
