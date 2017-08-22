@@ -38,6 +38,9 @@ public class UserSessionManager
     // User name (make variable public to access from outside)
     public static final String KEY_NAME = "name";
 
+    public static final String KEY_IMAGE = "image";
+    public static final String KEY_name = "nameone";
+
 
 
     // Constructor
@@ -58,6 +61,23 @@ public class UserSessionManager
         // Storing email in pref
 
         // commit changes
+        editor.commit();
+    }
+
+    public void SaveImage(String image){
+        // Storing login value as TRUE
+
+        // Storing name in pref
+        editor.putString(KEY_IMAGE, image);
+
+        editor.commit();
+    }
+    public void Savename(String image){
+        // Storing login value as TRUE
+
+        // Storing name in pref
+        editor.putString(KEY_name, image);
+
         editor.commit();
     }
 
@@ -104,6 +124,33 @@ public class UserSessionManager
         // return user
         return user;
     }
+
+    public HashMap<String, String> getImagedetail(){
+
+        //Use hashmap to store user credentials
+        HashMap<String, String> user = new HashMap<String, String>();
+
+        // user name
+        user.put(KEY_IMAGE, pref.getString(KEY_IMAGE, null));
+
+
+        // return user
+        return user;
+    }
+
+    public HashMap<String, String> getname(){
+
+        //Use hashmap to store user credentials
+        HashMap<String, String> user = new HashMap<String, String>();
+
+        // user name
+        user.put(KEY_name, pref.getString(KEY_name, null));
+
+
+        // return user
+        return user;
+    }
+
 
     /**
      * Clear session details

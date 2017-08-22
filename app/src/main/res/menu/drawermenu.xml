@@ -18,7 +18,9 @@
     <item android:title="समाचार अपलोड करें"
         android:id="@+id/nav_item_uploadnews"
         />
-
+    <item android:title="सेटिंग"
+        android:id="@+id/nav_item_setting"
+        />
     <!--<item android:title="@string/hindi"-->
         <!--android:id="@+id/nav_item_national"-->
      <!--/>-->

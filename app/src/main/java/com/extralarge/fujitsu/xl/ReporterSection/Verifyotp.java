@@ -1,14 +1,9 @@
 package com.extralarge.fujitsu.xl.ReporterSection;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.net.wifi.WifiManager;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,16 +17,17 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.extralarge.fujitsu.xl.AutomaticSmsRead.SmsListener;
-import com.extralarge.fujitsu.xl.AutomaticSmsRead.SmsReceiver;
-import com.extralarge.fujitsu.xl.FCM.tokensave;
+import com.extralarge.fujitsu.xl.FCM.TokenSave;
 import com.extralarge.fujitsu.xl.R;
+import com.extralarge.fujitsu.xl.Url;
 import com.extralarge.fujitsu.xl.UserSessionManager;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,6 +53,7 @@ public class Verifyotp extends AppCompatActivity implements View.OnClickListener
 
     UserSessionManager session;
     CountdownView mflatclocl;
+    String usernumbr;
 
 
     @Override
@@ -95,6 +92,9 @@ public class Verifyotp extends AppCompatActivity implements View.OnClickListener
 
             }
         });
+
+        usernumbr = getIntent().getStringExtra("usernumber");
+        Log.d("bbbbbbbbb","123456000"+usernumbr);
 
     }
     public void recivedSms(String message)
@@ -148,7 +148,7 @@ public class Verifyotp extends AppCompatActivity implements View.OnClickListener
 
             try
             {
-                if (asubstring.equals("MITEST"))
+                if (asubstring.equals("MIDAPP"))
                 {
                     recivedSms(messageBody);
                     mverifyotpbtn.performClick();
@@ -171,9 +171,10 @@ public class Verifyotp extends AppCompatActivity implements View.OnClickListener
     private void verifyotp(){
 
 
-        final String macid = tokensave.getInstance(this).getDeviceToken();
+        final String macid = TokenSave.getInstance(this).getDeviceToken();
         final String KEY_mobile = "otp";
         final String KEY_mac = "token";
+        final String KEY_mobilenumber = "mobile";
 
 
         verifyotptxt = mverifyotptext.getText().toString().trim();
@@ -185,7 +186,7 @@ public class Verifyotp extends AppCompatActivity implements View.OnClickListener
         else{
 
             String url = null;
-            String REGISTER_URL = "http://excel.ap-south-1.elasticbeanstalk.com/verify_otp.php";
+            String REGISTER_URL = Url.verifyotp;
 
             REGISTER_URL = REGISTER_URL.replaceAll(" ", "%20");
             try {
@@ -199,22 +200,22 @@ public class Verifyotp extends AppCompatActivity implements View.OnClickListener
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
-                               Log.d("jabaver", macid);
+                               Log.d("jabaver", usernumbr);
                             try {
                                 JSONObject jsonresponse = new JSONObject(response);
                                 boolean success = jsonresponse.getBoolean("success");
 
                                 if (success) {
 
-                                    String name = jsonresponse.getString("username");
-                                    int id = jsonresponse.getInt("id");
+                                    String name = jsonresponse.getString("name");
+                                    String id = jsonresponse.getString("id");
+                                    String image = jsonresponse.getString("image");
 
-                                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(Verifyotp.this);
-                                    SharedPreferences.Editor editor = prefs.edit();
-                                    editor.putInt("NameOfShared", id);
-                                    editor.commit();
+                                    SaveUserId.getInstance(getApplicationContext()).saveuserId(id);
 
-                                    session.createUserLoginSession(name);
+                                    session.createUserLoginSession(id);
+                                    session.SaveImage(image);
+                                    session.Savename(name);
 
                                     Intent registerintent = new Intent(Verifyotp.this, ReporterDashboard.class);
 //
@@ -244,8 +245,10 @@ public class Verifyotp extends AppCompatActivity implements View.OnClickListener
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            // Log.d("jabadi", usernsme);
-                            Toast.makeText(Verifyotp.this, error.toString(), Toast.LENGTH_LONG).show();
+                            Log.d("jabavererr00", usernumbr);
+                            if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                                Toast.makeText(Verifyotp.this,"You Have Some Connectivity Issue..", Toast.LENGTH_LONG).show();
+                            }
 
                         }
                     }) {
@@ -254,10 +257,12 @@ public class Verifyotp extends AppCompatActivity implements View.OnClickListener
                 @Override
                 protected Map<String, String> getParams() throws AuthFailureError {
                     Map<String, String> params = new HashMap<>();
-                    //Adding parameters to request
+
 
                     params.put(KEY_mac, macid);
                     params.put(KEY_mobile, verifyotptxt);
+                    params.put(KEY_mobilenumber, usernumbr);
+
                     return params;
 
                 }

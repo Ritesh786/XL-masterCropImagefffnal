@@ -11,9 +11,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.extralarge.fujitsu.xl.NewsSection.BollywoodNews;
+import com.extralarge.fujitsu.xl.NewsSection.BusinessNews;
+import com.extralarge.fujitsu.xl.NewsSection.CitiesNews;
+import com.extralarge.fujitsu.xl.NewsSection.EntertainmentNews;
 import com.extralarge.fujitsu.xl.NewsSection.International;
 import com.extralarge.fujitsu.xl.NewsSection.MainNews;
 import com.extralarge.fujitsu.xl.NewsSection.National;
+import com.extralarge.fujitsu.xl.NewsSection.SportsNews;
 import com.extralarge.fujitsu.xl.NewsSection.State;
 
 /**
@@ -24,7 +29,7 @@ public class TabFragment  extends Fragment {
 
     public static TabLayout tabLayout;
     public static ViewPager viewPager;
-    public static int int_items = 5 ;
+    public static int int_items = 9 ;
 
     @Nullable
     @Override
@@ -72,15 +77,15 @@ public class TabFragment  extends Fragment {
         public Fragment getItem(int position)
         {
             switch (position){
-                case 0 :MainNews dashfab = new MainNews();
-                    FragmentManager manager = getFragmentManager();
-                    manager.beginTransaction().commit();
-                   // Log.d("tab0123", String.valueOf(strtext));
-                    return dashfab;
+                case 0 : return new MainNews();
                 case 1 : return new National();
                 case 2 : return new International();
                 case 3 : return new State();
-                case 4 : return new National();
+                case 4 : return new BusinessNews();
+                case 5 : return new CitiesNews();
+                case 6 : return new SportsNews();
+                case 7 : return new EntertainmentNews();
+                case 8 : return new BollywoodNews();
 
             }
             return null;
@@ -112,6 +117,14 @@ public class TabFragment  extends Fragment {
                     return "राज्य";
                 case 4 :
                     return "व्यापार";
+                case 5 :
+                    return "शहरों";
+                case 6 :
+                    return "खेल";
+                case 7 :
+                    return "मनोरंजन";
+                case 8 :
+                    return "बॉलीवुड";
             }
             return null;
         }

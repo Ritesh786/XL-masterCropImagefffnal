@@ -15,54 +15,20 @@
         tools:context="com.newkabadiwala.fujitsu.thekabadiwala.RegistrationActivity">
 
 
-        <ImageView
-            android:id="@+id/img_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="200dp"
-            android:src="@drawable/logofix"
-            android:layout_gravity="center"
-            android:layout_marginTop="40dp"
-            />
-
-        <!--<android.support.design.widget.TextInputLayout-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:maxLength="10"-->
-            <!--android:layout_marginTop="30dp"-->
-            <!--android:layout_marginLeft="10dp"-->
-            <!--android:layout_marginRight="10dp"-->
-            <!--android:focusableInTouchMode="true"-->
-            <!--&gt;-->
-
-            <!--<EditText-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:hint=" UserType"-->
-                <!--android:id="@+id/reg_usertype"-->
-                <!--android:layout_gravity="center"-->
-                <!--/>-->
-        <!--</android.support.design.widget.TextInputLayout>-->
+        <com.mikhaellopez.circularimageview.CircularImageView
+            android:id="@+id/userImageVIew"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="16dip"
+            android:src="@drawable/usexc"
+            app:civ_border_color="#EEEEEE"
+            app:civ_border_width="1dp"
+            app:civ_shadow="true"
+            android:layout_gravity="center_horizontal"
+            app:civ_shadow_radius="2"
+            app:civ_shadow_color="#000000"/>
 
 
-        <!--<android.support.design.widget.TextInputLayout-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:maxLength="10"-->
-            <!--android:layout_marginTop="10dp"-->
-            <!--android:layout_marginLeft="10dp"-->
-            <!--android:layout_marginRight="10dp"-->
-            <!--android:focusableInTouchMode="true"-->
-            <!--&gt;-->
-
-            <!--<EditText-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:hint=" Password"-->
-                <!--android:id="@+id/reg_password"-->
-                <!--android:layout_gravity="center"-->
-                <!--android:inputType="textPassword"-->
-                <!--/>-->
-        <!--</android.support.design.widget.TextInputLayout>-->
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -120,31 +86,12 @@
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint=" E-Mail"
+                android:hint=" E-Mail(optional)"
                 android:id="@+id/reg_email"
                 android:layout_gravity="center"
                 />
         </android.support.design.widget.TextInputLayout>
 
-        <!--<android.support.design.widget.TextInputLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginTop="10dp"-->
-        <!--android:layout_marginLeft="10dp"-->
-        <!--android:layout_marginRight="10dp"-->
-        <!--android:focusableInTouchMode="true"-->
-        <!--&gt;-->
-
-        <!--<EditText-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:hint=" Mobile No."-->
-        <!--android:id="@+id/reg_mobile"-->
-        <!--android:layout_gravity="center"-->
-        <!--android:maxLength="10"-->
-        <!--android:inputType="number"-->
-        <!--/>-->
-        <!--</android.support.design.widget.TextInputLayout>-->
         <android.support.design.widget.TextInputLayout
 
             android:layout_width="match_parent"
@@ -250,14 +197,6 @@
             android:padding="12dp"
             android:text="Register"
             android:layout_gravity="center"/>
-
-        <TextView android:id="@+id/linkSignup"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:text="Already have an account? Login here"
-            android:gravity="center"
-            android:textSize="16dip"/>
 
 
     </LinearLayout>

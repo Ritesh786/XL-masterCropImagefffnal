@@ -67,7 +67,7 @@ public class RecycleAdapter extends RecyclerView.Adapter<RecycleAdapter.MyViewHo
 
         holder.title.setText(movie.getTitle());
         holder.genre.setText(movie.getGenre());
-        holder.year.setText(movie.getYear());
+        holder.year.setText(movie.getName());
       // holder.thumbNail.setImageUrl(movieItems.get(position).getThumbnailUrl(), imageLoader);
       //  holder.rating.setText(""+movie.getRating());
        // Picasso.with(context).load(movieItems.get(position).getThumbnailUrl()).into(holder.thumbNail);

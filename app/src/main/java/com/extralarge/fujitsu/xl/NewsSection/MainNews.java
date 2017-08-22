@@ -2,8 +2,12 @@ package com.extralarge.fujitsu.xl.NewsSection;
 
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -12,18 +16,23 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.extralarge.fujitsu.xl.FCM.MyFirebaseInstanceIDService;
+import com.extralarge.fujitsu.xl.FCM.TokenSave;
 import com.extralarge.fujitsu.xl.R;
 import com.extralarge.fujitsu.xl.ReporterSection.AppController;
-import com.extralarge.fujitsu.xl.ReporterSection.CustomListAdapter;
 import com.extralarge.fujitsu.xl.ReporterSection.Movie;
 import com.extralarge.fujitsu.xl.ReporterSection.NewsDetailShow;
 import com.extralarge.fujitsu.xl.ReporterSection.RecycleAdapter;
+import com.extralarge.fujitsu.xl.Url;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,6 +40,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.os.ParcelFileDescriptor.MODE_WORLD_READABLE;
 
 
 /**
@@ -95,15 +106,42 @@ public class MainNews extends Fragment   {
 
         populatedata();
 
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                Context mctx = getContext();
+
+                if(mctx == null){
+
+                }else {
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mctx);
+                    if (!prefs.getBoolean("firstTime", false)) {
+
+                        SendtokenofNews();
+
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putBoolean("firstTime", true);
+                        editor.commit();
+                    }
+                }
+
+            }
+        }, 5000);
+
+
 
         return  view;
     }
+
+
 
     public void populatedata(){
 
 
 
-        final String url = "http://excel.ap-south-1.elasticbeanstalk.com/slimapp/public/api/posts/approved";
+        final String url = Url.newmain;
 
        // String newurl = url+strtext;
 
@@ -123,14 +161,14 @@ public class MainNews extends Fragment   {
                                 Movie movie = new Movie();
 
                                 String imagestr = obj.getString("image");
-                                String imagrurl = "http://excel.ap-south-1.elasticbeanstalk.com/news/uploads/";
+                                String imagrurl =  Url.imageurl;
                                 String imageurlfull = imagrurl+imagestr;
 
 
                                 movie.setTitle(obj.getString("headline"));
                                 movie.setThumbnailUrl(imageurlfull);
                                 movie.setRating(obj.getString("content"));
-
+                                movie.setName(obj.getString("name"));
                                 movie.setYear(obj.getString("category"));
                                 movie.setGenre(obj.getString("showtime"));
 
@@ -174,6 +212,46 @@ public class MainNews extends Fragment   {
             pDialog.dismiss();
             pDialog = null;
         }
+    }
+
+    public void SendtokenofNews() {
+
+        String token = TokenSave.getInstance(getActivity()).getDeviceToken();
+        final String LOGIN_URL = Url.sendingtoken;
+        String newurl = LOGIN_URL+token;
+      //  Log.d("njnjnjnjjn","000"+username);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, newurl,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("jaba",response.toString());
+//
+                        try {
+                            JSONObject jsonresponse = new JSONObject(response);
+                            boolean success = jsonresponse.getBoolean("success");
+
+                            if(success){
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        Toast.makeText(getContext(), response.toString(), Toast.LENGTH_LONG).show();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        //   Log.d("jabadi",motptext);
+                        Toast.makeText(getContext(), error.toString(), Toast.LENGTH_LONG).show();
+
+                    }
+                }) {
+
+        };RequestQueue requestQueue = Volley.newRequestQueue(getContext());
+        requestQueue.add(stringRequest);
     }
 
 }

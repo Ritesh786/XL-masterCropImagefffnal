@@ -3,7 +3,9 @@ package com.extralarge.fujitsu.xl.NewsSection;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,16 +16,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.extralarge.fujitsu.xl.FCM.TokenSave;
 import com.extralarge.fujitsu.xl.R;
 import com.extralarge.fujitsu.xl.ReporterSection.AppController;
 import com.extralarge.fujitsu.xl.ReporterSection.CustomListAdapter;
 import com.extralarge.fujitsu.xl.ReporterSection.Movie;
 import com.extralarge.fujitsu.xl.ReporterSection.NewsDetailShow;
 import com.extralarge.fujitsu.xl.ReporterSection.RecycleAdapter;
+import com.extralarge.fujitsu.xl.Url;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,6 +40,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.os.ParcelFileDescriptor.MODE_WORLD_READABLE;
 
 
 /**
@@ -113,7 +124,7 @@ public class National extends Fragment{
 
     public void populatedata(){
 
-        final String url = "http://excel.ap-south-1.elasticbeanstalk.com/slimapp/public/api/posts/approved/National";
+        final String url = Url.news+"National";
 
 
         JsonArrayRequest movieReq = new JsonArrayRequest(url,
@@ -132,11 +143,12 @@ public class National extends Fragment{
                                 Movie movie = new Movie();
 
                                 String imagestr = obj.getString("image");
-                                String imagrurl = "http://excel.ap-south-1.elasticbeanstalk.com/news/uploads/";
+                                String imagrurl =  Url.imageurl;
                                 String imageurlfull = imagrurl+imagestr;
 
                                 movie.setTitle(obj.getString("headline"));
                                 movie.setThumbnailUrl(imageurlfull);
+                                movie.setName(obj.getString("name"));
                                 movie.setRating(obj.getString("content"));
 
                                 movie.setYear(obj.getString("category"));
@@ -183,8 +195,5 @@ public class National extends Fragment{
             pDialog = null;
         }
     }
-
-
-
 
 }

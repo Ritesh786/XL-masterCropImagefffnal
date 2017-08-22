@@ -18,10 +18,29 @@
             android:layout_height="?attr/actionBarSize"
             android:background="#ffff"
             app:contentInsetLeft="0dp"
-            app:titleTextAppearance="@style/Toolbar.TitleText"
             app:contentInsetStart="0dp"
+            app:titleTextAppearance="@style/Toolbar.TitleText"
             app:contentInsetStartWithNavigation="0dp"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <com.mikhaellopez.circularimageview.CircularImageView
+                android:id="@+id/userImageVIew"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/userxxx"
+                app:civ_border_color="#EEEEEE"
+                app:civ_border_width="1dp"
+                app:civ_shadow="true"
+                android:layout_gravity="center_horizontal"
+                app:civ_shadow_radius="2"
+                android:layout_marginLeft="140dp"
+                app:civ_shadow_color="#000000"/>
+
+
+
+        </android.support.v7.widget.Toolbar>
+
+
 
     </android.support.design.widget.AppBarLayout>
 

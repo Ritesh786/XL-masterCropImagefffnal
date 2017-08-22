@@ -4,11 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -18,26 +15,13 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.extralarge.fujitsu.xl.FCM.MyFirebaseInstanceIDService;
-import com.extralarge.fujitsu.xl.FCM.tokensave;
 import com.extralarge.fujitsu.xl.ReporterSection.BecomeReporter;
 import com.extralarge.fujitsu.xl.ReporterSection.ReporterDashboard;
 import com.extralarge.fujitsu.xl.ReporterSection.ReporterLogin;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     FragmentManager mFragmentManager;
     FragmentTransaction mFragmentTransaction;
     android.support.v7.widget.Toolbar toolbar;
-    private BroadcastReceiver broadcastReceiver = null ;
+    private BroadcastReceiver broadcastReceiver;
     String token;
     AlertDialog alertDialog;
 
@@ -178,6 +162,12 @@ public class MainActivity extends AppCompatActivity {
                     finish();
                 }
 
+                if (menuItem.getItemId() == R.id.nav_item_setting) {
+
+                    Intent dashboardintent = new Intent(MainActivity.this, SettingActivity.class);
+                    startActivity(dashboardintent);
+                }
+
                 return false;
             }
 
@@ -194,29 +184,6 @@ public class MainActivity extends AppCompatActivity {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         mDrawerToggle.syncState();
-
-        broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-                token = tokensave.getInstance(MainActivity.this).getDeviceToken();
-                Log.d("tok00",token);
-
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
-                if(!prefs.getBoolean("firstTime", false)) {
-
-                    SendtokenofNews();
-
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putBoolean("firstTime", true);
-                    editor.commit();
-                }
-
-            }
-        };
-
-        registerReceiver(broadcastReceiver,new IntentFilter(MyFirebaseInstanceIDService.TOKEN_BROADCAST));
-
 
         if (!isNetworkAvailable(MainActivity.this)) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
@@ -241,18 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         }
-
-        }
-
-    @Override
-    protected void onDestroy() {
-        if (broadcastReceiver != null) {
-            unregisterReceiver(broadcastReceiver);
-            broadcastReceiver = null;
-        }
-        super.onDestroy();
-    }
-
+}
 
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager connectivityManager = ( ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -265,44 +221,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-    public void SendtokenofNews() {
-        
-        final String LOGIN_URL = "http://excel.ap-south-1.elasticbeanstalk.com/slimapp/public/api/readers/";
-        String newurl = LOGIN_URL+token;
-
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, newurl,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("jaba",response.toString());
-//
-                        try {
-                            JSONObject jsonresponse = new JSONObject(response);
-                            boolean success = jsonresponse.getBoolean("success");
-
-                            if(success){
-                            }
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        Toast.makeText(MainActivity.this, response.toString(), Toast.LENGTH_LONG).show();
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                     //   Log.d("jabadi",motptext);
-                        Toast.makeText(MainActivity.this, error.toString(), Toast.LENGTH_LONG).show();
-
-                    }
-                }) {
-
-        };RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
-        requestQueue.add(stringRequest);
-    }
 
 
     }

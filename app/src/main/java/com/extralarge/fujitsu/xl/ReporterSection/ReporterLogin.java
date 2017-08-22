@@ -7,22 +7,23 @@ import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatButton;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.extralarge.fujitsu.xl.AbsRuntimePermission;
-import com.extralarge.fujitsu.xl.FCM.tokensave;
 import com.extralarge.fujitsu.xl.MainActivity;
 import com.extralarge.fujitsu.xl.R;
+import com.extralarge.fujitsu.xl.Url;
 import com.extralarge.fujitsu.xl.UserSessionManager;
 
 import org.json.JSONException;
@@ -103,11 +104,15 @@ public class ReporterLogin extends AbsRuntimePermission implements View.OnClickL
         if (TextUtils.isEmpty(sendotptxt)) {
             msendotptext.requestFocus();
             msendotptext.setError("This Field Is Mandatory");
+        }else if(sendotptxt.length()<10){
+
+            msendotptext.requestFocus();
+            msendotptext.setError("Mobile Number Not Valid");
         }
         else{
 
             String url = null;
-            String REGISTER_URL = "http://excel.ap-south-1.elasticbeanstalk.com/request_sms.php";
+            String REGISTER_URL = Url.reporterlogin;
 
             REGISTER_URL = REGISTER_URL.replaceAll(" ", "%20");
             try {
@@ -129,6 +134,7 @@ public class ReporterLogin extends AbsRuntimePermission implements View.OnClickL
                                 if (success) {
 
                                     Intent registerintent = new Intent(ReporterLogin.this, Verifyotp.class);
+                                    registerintent.putExtra("usernumber",sendotptxt);
                                     startActivity(registerintent);
                                     finish();
                                 } else {
@@ -151,7 +157,9 @@ public class ReporterLogin extends AbsRuntimePermission implements View.OnClickL
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             // Log.d("jabadi", usernsme);
-                            Toast.makeText(ReporterLogin.this, error.toString(), Toast.LENGTH_LONG).show();
+                            if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                                Toast.makeText(ReporterLogin.this,"You Have Some Connectivity Issue..", Toast.LENGTH_LONG).show();
+                            }
 
                         }
                     }) {

@@ -3,53 +3,43 @@ package com.extralarge.fujitsu.xl.ReporterSection;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
+import android.content.ContentValues;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
-import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
-import android.telephony.TelephonyManager;
-import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.extralarge.fujitsu.xl.FCM.tokensave;
-import com.extralarge.fujitsu.xl.MainActivity;
+import com.extralarge.fujitsu.xl.FCM.TokenSave;
 import com.extralarge.fujitsu.xl.R;
 import com.extralarge.fujitsu.xl.Spinner.MySpinnerAdapter;
-import com.extralarge.fujitsu.xl.Spinner.MySpinnerLight;
+import com.extralarge.fujitsu.xl.Url;
 import com.extralarge.fujitsu.xl.UserSessionManager;
+import com.squareup.picasso.Picasso;
 import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
 
 import org.json.JSONException;
@@ -64,11 +54,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static android.R.attr.bitmap;
-import static android.app.Activity.RESULT_OK;
-import static com.extralarge.fujitsu.xl.R.id.imageView;
-import static com.extralarge.fujitsu.xl.R.id.verifyotp_btn;
-
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -79,7 +64,7 @@ public class DashboardFragment extends Fragment implements View.OnClickListener,
      Button mchooseimagebtn,muploadnewsbtn;
     ImageView mnewsimage;
     int id;
-    int strtext;
+    String strtext;
     private int PICK_IMAGE_REQUEST = 1;
     private int CAMERA_REQUEST = 2;
     private static final int PICK_CROPIMAGE = 4;
@@ -91,6 +76,8 @@ public class DashboardFragment extends Fragment implements View.OnClickListener,
     String strtim;
     AlertDialog dialog;
     UserSessionManager session;
+
+    Uri  imageUri;
 
     public static final String KEY_ID= "user_id";
     public static final String KEY_HHEADLINE = "headline";
@@ -135,6 +122,8 @@ public class DashboardFragment extends Fragment implements View.OnClickListener,
         list.add("International");
         list.add("State");
         list.add("Business");
+        list.add("Cities");
+        list.add("Sports");
         list.add("Bollywood");
         list.add("Entertainment");
 
@@ -178,7 +167,11 @@ try {
 
     public String getStringImage(Bitmap bmp){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.JPEG, 30, baos);
+        if(bmp==null){
+
+        }else {
+            bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        }
         byte[] imageBytes = baos.toByteArray();
         String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
         return encodedImage;
@@ -186,14 +179,9 @@ try {
 
     public void uploadImage() {
 
-
-
         try {
-           bundle = this.getArguments();
-            strtext = bundle.getInt("message", 0);
-            Log.d("idv012", String.valueOf(strtext));
 
-            final String userid = String.valueOf(strtext);
+            final String userid = SaveUserId.getInstance(getContext()).getUserId();
             final String headline = mnewsheadline.getText().toString().trim();
             final String content = mnewscontent.getText().toString().trim();
             final String type = mnewstype.getText().toString().trim();
@@ -202,7 +190,7 @@ try {
 
 
             String url = null;
-            String REGISTER_URL = "http://excel.ap-south-1.elasticbeanstalk.com/news/uploadNews.php";
+            String REGISTER_URL = Url.newsupload;
 
             REGISTER_URL = REGISTER_URL.replaceAll(" ", "%20");
             try {
@@ -253,10 +241,12 @@ try {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Log.d("bada123", userid);
+                         //   Log.d("bada123", userid);
 
                             loading.dismiss();
-                            Toast.makeText(getContext(), error.toString(), Toast.LENGTH_LONG).show();
+                            if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                                Toast.makeText(getContext(),"You Have Some Connectivity Issue..", Toast.LENGTH_LONG).show();
+                            }
                             Log.d("error1234", error.toString());
 
                         }
@@ -313,10 +303,24 @@ try {
             mtakephoto.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+//
+//                    Intent cameraIntent = new Intent(getContext(),CameraActivity.class);
+//                    cameraIntent.putExtra(GlobalVariables.FILENAME,GlobalVariables.profilepic_name);
+//                    startActivityForResult(cameraIntent, CAMERA_REQUEST);
 
-                    Intent cameraIntent = new Intent(getContext(),CameraActivity.class);
-                    cameraIntent.putExtra(GlobalVariables.FILENAME,GlobalVariables.profilepic_name);
-                    startActivityForResult(cameraIntent, CAMERA_REQUEST);
+//                    Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+//                    startActivityForResult(cameraIntent, 9);
+
+                    ContentValues   values = new ContentValues();
+                    values.put(MediaStore.Images.Media.TITLE, "New Picture");
+                    values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera");
+                     imageUri = getActivity().getContentResolver().insert(
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                    startActivityForResult(intent, CAMERA_REQUEST);
+
+
 
 
                 }
@@ -366,8 +370,29 @@ try {
 //            } catch (IOException e) {
 //                e.printStackTrace();
 //            }
-
 //        }
+
+//        if (requestCode == 9 && resultCode == Activity.RESULT_OK) {
+//            Bitmap photo = (Bitmap) data.getExtras().get("data");
+//            mnewsimage.setImageBitmap(photo);
+//        }
+
+
+//        if (requestCode == 8)
+//            if (resultCode == Activity.RESULT_OK) {
+//                try {
+//                  Bitmap thumbnail = MediaStore.Images.Media.getBitmap(
+//                           getActivity().getContentResolver(), imageUri);
+//
+//                    Picasso.with(getContext()).load(imageUri).into(mnewsimage);
+//
+//                 //  mnewsimage.setImageBitmap(thumbnail);
+////                 //  String imageurl = getRealPathFromURI(imageUri);
+//                } catch (Exception e) {
+//                   e.printStackTrace();
+//               }
+//
+//            }
 
         if(requestCode==PICK_IMAGE_REQUEST) {
 
@@ -389,7 +414,7 @@ try {
 //            mnewsimage.setImageBitmap(bitmap);
 //        }
 
-        if(requestCode ==CAMERA_REQUEST ){
+        if(requestCode == CAMERA_REQUEST ){
 //            if(data.getExtras()==null){
 //
 //                Toast.makeText(getContext()," Please Take Image For Uploading.... ",Toast.LENGTH_LONG).show();
@@ -397,18 +422,46 @@ try {
 //            }else {
 //                Bitmap bitmapcamear = (Bitmap) data.getExtras().get("data");
 //                String bitstring = getStringImage(bitmapcamear);
-//                boolean checktr = true;
-//                Intent intentcrop = new Intent(getContext(), CropImage.class);
-//                intentcrop.putExtra("cameraji", bitstring);
-//                intentcrop.putExtra("camerajiboolean", checktr);
-//                startActivityForResult(intentcrop, PICK_CROPIMAGE);
+            Bitmap thumbnail = null;
+            try {
+                thumbnail = MediaStore.Images.Media.getBitmap(
+                               getActivity().getContentResolver(), imageUri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            if(thumbnail == null){
+
+                Toast.makeText(getContext()," Please Select Image For Uploading.... ",Toast.LENGTH_LONG).show();
+                dialog.dismiss();
+            }
+            else {
+                boolean checktr = true;
+                Intent intentcrop = new Intent(getContext(), CropImage.class);
+                intentcrop.putExtra("cameraji", imageUri.toString());
+                intentcrop.putExtra("camerajiboolean", checktr);
+                startActivityForResult(intentcrop, PICK_CROPIMAGE);
+            }
 //            }
-            bitmap =  UtilityClass.getImage(GlobalVariables.profilepic_name);
-            mnewsimage.setImageBitmap(bitmap);
-            dialog.dismiss();
+//            bitmap =  UtilityClass.getImage(GlobalVariables.profilepic_name);
+//            mnewsimage.setImageBitmap(bitmap);
+//            dialog.dismiss();
 
 
         }
+
+        if(requestCode==PICK_CROPIMAGE)
+        {
+            strtim = data.getStringExtra("cropimageone");
+            Log.d("imageindash","imageindd "+strtim);
+            bitmap = StringToBitMap(strtim);
+            Log.d("imageinbitmap","imageinbit "+bitmap);
+            mnewsimage.setImageBitmap(bitmap);
+            dialog.dismiss();
+
+        }
+
 
         if(requestCode==6)
         {
@@ -421,6 +474,15 @@ try {
 
         }
 
+    }
+
+    public String getRealPathFromURI(Uri contentUri) {
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = getActivity().managedQuery(contentUri, proj, null, null, null);
+        int column_index = cursor
+                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
     }
 
     public Bitmap StringToBitMap(String encodedString) {
@@ -491,13 +553,13 @@ try {
 
     public void CheckLogout(){
 
-        final String macid = tokensave.getInstance(getContext()).getDeviceToken();
+        final String macid = TokenSave.getInstance(getContext()).getDeviceToken();
         Log.d("mc0120","macid11"+macid);
         final String KEY_mac = "token";
 
 
             String url = null;
-            String REGISTER_URL = "http://excel.ap-south-1.elasticbeanstalk.com/checkMeOut.php";
+            String REGISTER_URL = Url.checkmeout;
 
             REGISTER_URL = REGISTER_URL.replaceAll(" ", "%20");
             try {
@@ -524,6 +586,7 @@ try {
                                 } else {
 
                                     session.logoutUser();
+                                    getActivity().finish();
                                 }
 
                             } catch (JSONException e) {
@@ -537,8 +600,9 @@ try {
                         @Override
                         public void onErrorResponse(VolleyError error) {
                              Log.d("jabadimc", macid);
-                            Toast.makeText(getContext(), error.toString(), Toast.LENGTH_LONG).show();
-
+                            if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                                Toast.makeText(getContext(),"You Have Some Connectivity Issue..", Toast.LENGTH_LONG).show();
+                            }
                         }
                     }) {
 
@@ -557,21 +621,4 @@ try {
             RequestQueue requestQueue = Volley.newRequestQueue(getContext());
             requestQueue.add(stringRequest);
         }
-
-
-
-//
-//    public  String getMacId()
-//    {
-//        TelephonyManager telephonyManager;
-//
-//        telephonyManager = (TelephonyManager) getActivity().getSystemService(Context.
-//                TELEPHONY_SERVICE);
-//
-//        String deviceId = telephonyManager.getDeviceId();
-//
-//        return deviceId;
-//    }
-
-
 }

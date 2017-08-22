@@ -1,17 +1,12 @@
 package com.extralarge.fujitsu.xl.ReporterSection;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -26,20 +21,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.extralarge.fujitsu.xl.FCM.tokensave;
 import com.extralarge.fujitsu.xl.MainActivity;
 import com.extralarge.fujitsu.xl.R;
-import com.extralarge.fujitsu.xl.TabFragment;
+import com.extralarge.fujitsu.xl.Url;
 import com.extralarge.fujitsu.xl.UserSessionManager;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.mikhaellopez.circularimageview.CircularImageView;
+import com.squareup.picasso.Picasso;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -53,32 +48,43 @@ public class ReporterDashboard extends AppCompatActivity
 
     UserSessionManager session;
 
-    String name;
+   // String name;
     DashboardFragment fragment1;
-    int id;
+    String id;
     Bundle bundle;
 
     FragmentManager mFragmentManager;
     FragmentTransaction mFragmentTransaction;
+    String name,image1,nreimg;
 
+    CircularImageView userImageVIew;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reporter_dashboard);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         session = new UserSessionManager(getApplicationContext());
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+        if (session.checkLogin())
+            finish();
+
+        HashMap<String, String> user = session.getname();
+        name = user.get(UserSessionManager.KEY_name);
+
+        HashMap<String, String> image = session.getImagedetail();
+        image1 = image.get(UserSessionManager.KEY_IMAGE);
+
+        nreimg = "https://s3.ap-south-1.amazonaws.com/excel-storage/images/profiles/"+image1;
+        Log.d("jnjnjnjn","00000"+image1+nreimg);
+
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        userImageVIew=(CircularImageView)toolbar.findViewById(R.id.userImageVIew);
+        Picasso.with(getApplicationContext()).load(String.valueOf(nreimg)).into(userImageVIew);
+        toolbar.setTitle(name);
+        setSupportActionBar(toolbar);
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -91,32 +97,9 @@ public class ReporterDashboard extends AppCompatActivity
         mnametext = (TextView) hView.findViewById(R.id.nametext);
         navigationView.setNavigationItemSelectedListener(this);
 
-//        Intent intent = getIntent();
-//        id = intent.getIntExtra("user_id",0);
-//        getMyData();
-        final SharedPreferences mSharedPreference= PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        id=(mSharedPreference.getInt("NameOfShared", 0));
 
-        Log.d("user0123", String.valueOf(id));
-
-        bundle = new Bundle();
-        bundle.putInt("message",id);
-
-//       fragment1 = new DashboardFragment();
-//        FragmentManager manager = getSupportFragmentManager();
-//        fragment1.setArguments(bundle);
-//        manager.beginTransaction().add(R.id.frame_trans, fragment1).addToBackStack("Upload").commit();
-//         manager.addOnBackStackChangedListener(this);
-
-//        tabdesign fragtab = new tabdesign();
-//        mFragmentManager = getSupportFragmentManager();
-//        fragtab.setArguments(bundle);
-//        mFragmentTransaction = mFragmentManager.beginTransaction();
-//        mFragmentTransaction.replace(R.id.frame_trans, fragtab).commit();
-//
          tabdesign tabfrag = new tabdesign();
         mFragmentManager = getSupportFragmentManager();
-        tabfrag.setArguments(bundle);
         mFragmentTransaction = mFragmentManager.beginTransaction();
         mFragmentTransaction.replace(R.id.frame_trans, tabfrag).addToBackStack("Reporter Dashboard").commit();
         mFragmentManager.addOnBackStackChangedListener(this);
@@ -126,16 +109,8 @@ public class ReporterDashboard extends AppCompatActivity
                 "User Login Status: " + session.isUserLoggedIn(),
                 Toast.LENGTH_LONG).show();
 
-        if (session.checkLogin())
-            finish();
 
-        // get user data from session
-        HashMap<String, String> user = session.getUserDetails();
-
-        // get name
-         name = user.get(UserSessionManager.KEY_NAME);
-
-        mnametext.setText(name);
+        mnametext.setText("Welcome Reporter");
 
 
 
@@ -169,7 +144,7 @@ public class ReporterDashboard extends AppCompatActivity
             // set dialog message
             alertDialogBuilder
                     .setMessage("Press Yes For Exit Or Press Samachar For News")
-                    .setCancelable(false)
+                    .setCancelable(true)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // if this button is clicked, close
@@ -225,14 +200,14 @@ public class ReporterDashboard extends AppCompatActivity
 
                 return true;
             }
-            if (id == R.id.logout) {
-
-                session.logoutUser();
-                ReporterDashboard.this.finish();
-                sendmacid();
-
-                return true;
-            }
+//            if (id == R.id.logout) {
+//
+//                session.logoutUser();
+//                ReporterDashboard.this.finish();
+//                sendmacid();
+//
+//                return true;
+//            }
 
 
             return super.onOptionsItemSelected(item);
@@ -248,7 +223,6 @@ public class ReporterDashboard extends AppCompatActivity
 
                 tabdesign tabfrag = new tabdesign();
                 mFragmentManager = getSupportFragmentManager();
-                tabfrag.setArguments(bundle);
                 mFragmentTransaction = mFragmentManager.beginTransaction();
                 mFragmentTransaction.replace(R.id.frame_trans, tabfrag).addToBackStack("Reporter Dashboard").commit();
                 mFragmentManager.addOnBackStackChangedListener(this);
@@ -260,7 +234,6 @@ public class ReporterDashboard extends AppCompatActivity
 
                 DashboardFragment fragment = new DashboardFragment();
                 FragmentManager manager = getSupportFragmentManager();
-                fragment.setArguments(bundle);
                 manager.beginTransaction().replace(R.id.frame_trans, fragment).addToBackStack("Upload News").commit();
                 manager.addOnBackStackChangedListener(this);
 
@@ -268,7 +241,6 @@ public class ReporterDashboard extends AppCompatActivity
 
                 PendingNews fragment = new PendingNews();
                 FragmentManager manager = getSupportFragmentManager();
-                fragment.setArguments(bundle);
                 manager.beginTransaction().replace(R.id.frame_trans, fragment).addToBackStack("Pending News").commit();
                 manager.addOnBackStackChangedListener(this);
 
@@ -276,7 +248,6 @@ public class ReporterDashboard extends AppCompatActivity
 
                 VerifiedNews fragment = new VerifiedNews();
                 FragmentManager manager = getSupportFragmentManager();
-                fragment.setArguments(bundle);
                 manager.beginTransaction().replace(R.id.frame_trans, fragment).addToBackStack("Verified News").commit();
                 manager.addOnBackStackChangedListener(this);
 
@@ -284,9 +255,22 @@ public class ReporterDashboard extends AppCompatActivity
 
                 RejectedNews fragment = new RejectedNews();
                 FragmentManager manager = getSupportFragmentManager();
-                fragment.setArguments(bundle);
                 manager.beginTransaction().replace(R.id.frame_trans, fragment).addToBackStack("Rejected News").commit();
                 manager.addOnBackStackChangedListener(this);
+
+            }
+            else if (id == R.id.nav_editprofile) {
+
+                startActivity(new Intent(ReporterDashboard.this,EditProfile.class));
+                finish();
+
+            }
+
+            else if (id == R.id.nav_logout) {
+
+                session.logoutUser();
+               ReporterDashboard.this.finish();
+               sendmacid();
 
             }
 
@@ -316,12 +300,12 @@ public class ReporterDashboard extends AppCompatActivity
 
     public void sendmacid(){
 
-        final String macid = tokensave.getInstance(ReporterDashboard.this).getDeviceToken();
+        final String macid = SaveUserId.getInstance(ReporterDashboard.this).getUserId();
         Log.d("mc00","macid11"+macid);
         final String KEY_mac = "token";
 
             String url = null;
-            String REGISTER_URL = "http://excel.ap-south-1.elasticbeanstalk.com/logout.php";
+            String REGISTER_URL = Url.logout+macid;
 
             REGISTER_URL = REGISTER_URL.replaceAll(" ", "%20");
             try {
@@ -331,7 +315,7 @@ public class ReporterDashboard extends AppCompatActivity
                 e.printStackTrace();
             }
 
-            StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
@@ -381,7 +365,9 @@ public class ReporterDashboard extends AppCompatActivity
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             // Log.d("jabadi", usernsme);
-                            Toast.makeText(ReporterDashboard.this, error.toString(), Toast.LENGTH_LONG).show();
+                            if (error instanceof TimeoutError || error instanceof NoConnectionError) {
+                                Toast.makeText(ReporterDashboard.this,"You Have Some Connectivity Issue..", Toast.LENGTH_LONG).show();
+                            }
 
                         }
                     }) {
@@ -390,9 +376,6 @@ public class ReporterDashboard extends AppCompatActivity
                 @Override
                 protected Map<String, String> getParams() throws AuthFailureError {
                     Map<String, String> params = new HashMap<>();
-
-                    params.put(KEY_mac, macid);
-
                     return params;
                 }
 

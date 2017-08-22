@@ -7,20 +7,20 @@ import android.content.SharedPreferences;
  * Created by Fujitsu on 14/06/2017.
  */
 
-public class tokensave {
+public class TokenSave {
     private static final String SHARED_PREF_NAME = "FCMSharedPref";
     private static final String TAG_TOKEN = "tagtoken";
 
-    private static tokensave mInstance;
+    private static TokenSave mInstance;
     private static Context mCtx;
 
-    private tokensave(Context context) {
+    private TokenSave(Context context) {
         mCtx = context;
     }
 
-    public static synchronized tokensave getInstance(Context context) {
+    public static synchronized TokenSave getInstance(Context context) {
         if (mInstance == null) {
-            mInstance = new tokensave(context);
+            mInstance = new TokenSave(context);
         }
         return mInstance;
     }

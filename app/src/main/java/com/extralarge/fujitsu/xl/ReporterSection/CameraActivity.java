@@ -16,6 +16,7 @@ import android.view.Display;
 import android.view.Surface;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 
 import com.extralarge.fujitsu.xl.R;
 
@@ -42,6 +43,7 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
     private static byte[] CompressedImageByteArray;
     private static Bitmap CompressedImage;
     FrameLayout preview;
+    ImageButton settingBtn;
  //   private static final int PICK_CROPIMAGE = 4;
 
 
@@ -52,13 +54,14 @@ public class CameraActivity extends AppCompatActivity implements View.OnClickLis
 
         UIClass.setStatusBarColor(this);
 
-
+        settingBtn = (ImageButton) findViewById(R.id.settingBtn);
         takePhotoBtn=(FrameLayout)findViewById(R.id.takePhotoBtn);
         btnCamType=(AppCompatButton)findViewById(R.id.btnCamType);
         preview = (FrameLayout) findViewById(R.id.camera_preview);
 
         takePhotoBtn.setOnClickListener(this);
         btnCamType.setOnClickListener(this);
+        settingBtn.setOnClickListener(this);
 
         File mediaStorageDir = new File(Environment.getExternalStorageDirectory(), GlobalVariables.FOLDER_NAME);
         if(!mediaStorageDir.exists()) {

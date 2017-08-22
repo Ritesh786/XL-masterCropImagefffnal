@@ -33,7 +33,7 @@
 
         <ImageView
             android:id="@+id/search_image"
-            android:layout_width="25dp"
+            android:layout_width="40dp"
             android:layout_height="25dp"
             android:layout_marginRight="10dp"
             android:layout_alignParentRight="true"

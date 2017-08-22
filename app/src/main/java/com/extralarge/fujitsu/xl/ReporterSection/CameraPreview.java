@@ -18,7 +18,7 @@ public class CameraPreview extends SurfaceView implements
 		mCamera = camera;
 		mHolder = getHolder();
 		mHolder.addCallback(this);
-	
+
 		mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 	}
@@ -58,8 +58,8 @@ public class CameraPreview extends SurfaceView implements
 			mCamera.setPreviewDisplay(holder);
 			mCamera.startPreview();
 			}
-	
-			
+
+
 		} catch (IOException e) {
 			 Log.e("Error in camera preview", "Error setting camera preview: " + e.getMessage());
 		}
@@ -73,7 +73,7 @@ public class CameraPreview extends SurfaceView implements
 			mCamera.setPreviewCallback(null);
 			mCamera.release();
 			mCamera = null;
-			
+
 		}
 
 	}

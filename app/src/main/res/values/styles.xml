@@ -27,10 +27,10 @@
         <item name="color">@android:color/black</item>
     </style>
 
-    <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-        <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/black</item>
-    </style>
+    <!--<style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">-->
+        <!--<item name="android:textSize">18sp</item>-->
+        <!--<item name="android:textColor">@color/black</item>-->
+    <!--</style>-->
 
     <style name="AppTheme.OverFlow">
 
@@ -38,6 +38,11 @@
         <item name="android:minWidth">20dip</item>
         <item name="android:padding">0dip</item>
 
+    </style>
+
+    <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 
 </resources>

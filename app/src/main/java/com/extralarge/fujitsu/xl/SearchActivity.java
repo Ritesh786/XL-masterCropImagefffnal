@@ -121,69 +121,76 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
     public void searchbar() {
 
-        pDialog = new ProgressDialog(SearchActivity.this);
-        // Showing progress dialog before making http request
-        pDialog.setMessage("Loading...");
-        pDialog.show();
+        final String  strtext = msearchedit.getText().toString().trim();
 
-       final String  strtext = msearchedit.getText().toString().trim();
+        if(strtext.isEmpty()){
+            msearchedit.requestFocus();
+            msearchedit.setError("This Field Is Mandatory");
+        }
 
-        final String url = "http://excel.ap-south-1.elasticbeanstalk.com/slimapp/public/api/posts/search/";
+else {
+            pDialog = new ProgressDialog(SearchActivity.this);
+            // Showing progress dialog before making http request
+            pDialog.setMessage("Loading...");
+            pDialog.show();
 
-        String newurl = url+strtext;
+            final String url = Url.searchnews;
 
-        JsonArrayRequest movieReq = new JsonArrayRequest(newurl,
-                new Response.Listener<JSONArray>() {
-                    @Override
-                    public void onResponse(JSONArray response) {
-                        Log.d("rest101", strtext);
-                        hidePDialog();
+            String newurl = url + strtext;
 
-                        // Parsing json
-                        for (int i = 0; i < response.length(); i++) {
-                            try {
+            JsonArrayRequest movieReq = new JsonArrayRequest(newurl,
+                    new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(JSONArray response) {
+                            Log.d("rest101", strtext);
+                            hidePDialog();
 
-                                JSONObject obj = response.getJSONObject(i);
-                                Movie movie = new Movie();
+                            // Parsing json
+                            for (int i = 0; i < response.length(); i++) {
+                                try {
 
-                                String imagestr = obj.getString("image");
-                                String imagrurl = "http://excel.ap-south-1.elasticbeanstalk.com/news/uploads/";
-                                String imageurlfull = imagrurl+imagestr;
+                                    JSONObject obj = response.getJSONObject(i);
+                                    Movie movie = new Movie();
 
-                                movie.setTitle(obj.getString("headline"));
-                                movie.setThumbnailUrl(imageurlfull);
-                                movie.setRating(obj.getString("content"));
+                                    String imagestr = obj.getString("image");
+                                    String imagrurl = "https://s3.ap-south-1.amazonaws.com/excel-storage/images/posts/";
+                                    String imageurlfull = imagrurl + imagestr;
 
-                                movie.setYear(obj.getString("category"));
-                                movie.setGenre(obj.getString("created_at"));
+                                    movie.setTitle(obj.getString("headline"));
+                                    movie.setThumbnailUrl(imageurlfull);
+                                    movie.setRating(obj.getString("content"));
 
-                                movieList.add(movie);
+                                    movie.setYear(obj.getString("category"));
+                                    movie.setGenre(obj.getString("created_at"));
+
+                                    movieList.add(movie);
 
 
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
                             }
 
+
+                            adapter.notifyDataSetChanged();
+
                         }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d("errr120", "Error: " + error.toString());
+                    Log.d("rest102", strtext);
+                    Toast.makeText(SearchActivity.this, error.toString(), Toast.LENGTH_LONG).show();
 
+                    hidePDialog();
 
-                        adapter.notifyDataSetChanged();
+                }
+            });
 
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d("errr120", "Error: " + error.toString());
-                Log.d("rest102", strtext);
-                Toast.makeText(SearchActivity.this,error.toString(),Toast.LENGTH_LONG).show();
-
-                hidePDialog();
-
-            }
-        });
-
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(movieReq);
+            // Adding request to request queue
+            AppController.getInstance().addToRequestQueue(movieReq);
+        }
 
 
     }

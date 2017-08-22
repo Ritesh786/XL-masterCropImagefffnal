@@ -5,6 +5,9 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +18,9 @@ import android.widget.ListView;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.extralarge.fujitsu.xl.NewsSection.RecyclerTouchListener;
 import com.extralarge.fujitsu.xl.R;
+import com.extralarge.fujitsu.xl.Url;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,16 +32,19 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class VerifiedNews extends Fragment implements AdapterView.OnItemClickListener {
+public class VerifiedNews extends Fragment{
 
     private static final String TAG = VerifiedNews.class.getSimpleName();
 
     private ProgressDialog pDialog;
     private List<Movie> movieList = new ArrayList<Movie>();
-    private ListView listView;
-    private CustomListAdapter adapter;
-    int strtext;
-    Movie movie;
+    // private ListView listView;
+
+    private RecyclerView recyclerView;
+
+    private RecycleAdapter adapter;
+    String strtext;
+
 
     String  type,headline,content,caption,image;
 
@@ -55,10 +63,41 @@ public class VerifiedNews extends Fragment implements AdapterView.OnItemClickLis
         View view = inflater.inflate(R.layout.fragment_verified_news, container, false);
 
 
-        listView = (ListView) view.findViewById(R.id.listvery);
-        adapter = new CustomListAdapter(getContext(), movieList);
-        listView.setAdapter(adapter);
+        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+//        adapter = new CustomListAdapter(getContext(), movieList);
+        // listView.setAdapter(adapter);
+        adapter = new RecycleAdapter(movieList);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
+
+        recyclerView.addOnItemTouchListener(
+                new RecyclerTouchListener(getContext(), new RecyclerTouchListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+
+                        Movie mo123 =  movieList.get(position);
+
+                        Intent newsdetailintnt = new Intent(getContext(),NewsDetailShow.class);
+                        newsdetailintnt.putExtra("type",mo123.getYear());
+                        newsdetailintnt.putExtra("headline",mo123.getTitle());
+                        newsdetailintnt.putExtra("content",mo123.getRating());
+                        newsdetailintnt.putExtra("image",mo123.getThumbnailUrl());
+                        newsdetailintnt.putExtra("id",mo123.getId());
+                        //  newsdetailintnt.putExtra("caption",movie.);
+                        startActivity(newsdetailintnt);
+
+
+                        // TODO Handle item click
+                    }
+                })
+        );
+
+        // recyclerView.getItemAnimator().setChangeDuration(0);
+
+        // adapter.getItemAnimator().setSupportsChangeAnimations(false);
 
         pDialog = new ProgressDialog(getContext());
         // Showing progress dialog before making http request
@@ -70,9 +109,7 @@ public class VerifiedNews extends Fragment implements AdapterView.OnItemClickLis
 //                new ColorDrawable(Color.parseColor("#1b1b1b")));
 
         // Creating volley request obj
-
-             populatedata();
-             listView.setOnItemClickListener(this);
+        populatedata();
 
         return view;
     }
@@ -80,11 +117,11 @@ public class VerifiedNews extends Fragment implements AdapterView.OnItemClickLis
 
     public void populatedata(){
 
-        Bundle bundle = this.getArguments();
-        strtext = bundle.getInt("message",0);
-        Log.d("idv", String.valueOf(strtext));
 
-        final String url = "http://excel.ap-south-1.elasticbeanstalk.com/slimapp/public/api/posts/user/approved/";
+        strtext =SaveUserId.getInstance(getContext()).getUserId();
+
+
+        final String url = Url.reporternews+"completed/";
 
         String newurl = url+strtext;
 
@@ -103,7 +140,7 @@ public class VerifiedNews extends Fragment implements AdapterView.OnItemClickLis
                                 Movie movie = new Movie();
 
                                 String imagestr = obj.getString("image");
-                                String imagrurl = "http://excel.ap-south-1.elasticbeanstalk.com/news/uploads/";
+                                String imagrurl =  Url.imageurl;
                                 String imageurlfull = imagrurl+imagestr;
 
                                 movie.setTitle(obj.getString("headline"));
@@ -154,25 +191,4 @@ public class VerifiedNews extends Fragment implements AdapterView.OnItemClickLis
     }
 
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-//        headline = movieList.get(movie.getTitle());
-//        type = obj.getString("type");
-//        content = obj.getString("content");
-//        caption = obj.getString("caption");
-//        image = obj.getString("image");
-
-        Movie mo123 = (Movie) parent.getItemAtPosition(position);
-
-        Intent newsdetailintnt = new Intent(getContext(),NewsDetailShow.class);
-        newsdetailintnt.putExtra("type",mo123.getYear());
-        newsdetailintnt.putExtra("headline",mo123.getTitle());
-        newsdetailintnt.putExtra("content",mo123.getRating());
-        newsdetailintnt.putExtra("image",mo123.getThumbnailUrl());
-        newsdetailintnt.putExtra("id",mo123.getId());
-      //  newsdetailintnt.putExtra("caption",movie.);
-        startActivity(newsdetailintnt);
-
-}
         }

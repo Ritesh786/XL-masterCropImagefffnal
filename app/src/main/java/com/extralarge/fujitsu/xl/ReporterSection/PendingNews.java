@@ -2,6 +2,7 @@ package com.extralarge.fujitsu.xl.ReporterSection;
 
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -18,7 +19,9 @@ import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.extralarge.fujitsu.xl.NewsSection.RecyclerTouchListener;
 import com.extralarge.fujitsu.xl.R;
+import com.extralarge.fujitsu.xl.Url;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,7 +46,7 @@ public class PendingNews extends Fragment {
     private RecyclerView recyclerView;
 
     private RecycleAdapter adapter;
-    int strtext;
+    String strtext;
 
     public PendingNews() {
         // Required empty public constructor
@@ -68,6 +71,28 @@ public class PendingNews extends Fragment {
         recyclerView.setAdapter(adapter);
        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
+        recyclerView.addOnItemTouchListener(
+                new RecyclerTouchListener(getContext(), new RecyclerTouchListener.OnItemClickListener() {
+                    @Override public void onItemClick(View view, int position) {
+
+                        Movie mo123 =  movieList.get(position);
+
+                        Intent newsdetailintnt = new Intent(getContext(),NewsDetailShow.class);
+                        newsdetailintnt.putExtra("type",mo123.getYear());
+                        newsdetailintnt.putExtra("headline",mo123.getTitle());
+                        newsdetailintnt.putExtra("content",mo123.getRating());
+                        newsdetailintnt.putExtra("image",mo123.getThumbnailUrl());
+                        newsdetailintnt.putExtra("id",mo123.getId());
+                        //  newsdetailintnt.putExtra("caption",movie.);
+                        startActivity(newsdetailintnt);
+
+
+                        // TODO Handle item click
+                    }
+                })
+        );
+
+
       // recyclerView.getItemAnimator().setChangeDuration(0);
 
        // adapter.getItemAnimator().setSupportsChangeAnimations(false);
@@ -90,11 +115,11 @@ public class PendingNews extends Fragment {
 
     public void populatedat(){
 
-        Bundle bundle = this.getArguments();
-        strtext = bundle.getInt("message", 0);
-        Log.d("idv", String.valueOf(strtext));
 
-        final String url = "http://excel.ap-south-1.elasticbeanstalk.com/slimapp/public/api/posts/user/pending/";
+        strtext = SaveUserId.getInstance(getContext()).getUserId();
+
+
+        final String url = Url.reporternews+"pending/";
 
         String newurl = url+strtext;
 
@@ -113,7 +138,7 @@ public class PendingNews extends Fragment {
                                 Movie movie = new Movie();
 
                                 String imagestr = obj.getString("image");
-                                String imagrurl = "http://excel.ap-south-1.elasticbeanstalk.com/news/uploads/";
+                                String imagrurl =  Url.imageurl;
                                 String imageurlfull = imagrurl+imagestr;
 
                                 movie.setTitle(obj.getString("headline"));

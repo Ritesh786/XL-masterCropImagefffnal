@@ -24,6 +24,7 @@ import com.extralarge.fujitsu.xl.ReporterSection.CustomListAdapter;
 import com.extralarge.fujitsu.xl.ReporterSection.Movie;
 import com.extralarge.fujitsu.xl.ReporterSection.NewsDetailShow;
 import com.extralarge.fujitsu.xl.ReporterSection.RecycleAdapter;
+import com.extralarge.fujitsu.xl.Url;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -108,7 +109,7 @@ public class International extends Fragment{
 
     public void populatedata(){
 
-        final String url = "http://excel.ap-south-1.elasticbeanstalk.com/slimapp/public/api/posts/approved/International";
+        final String url = Url.news+"International";
 
 
         JsonArrayRequest movieReq = new JsonArrayRequest(url,
@@ -127,7 +128,7 @@ public class International extends Fragment{
                                 Movie movie = new Movie();
 
                                 String imagestr = obj.getString("image");
-                                String imagrurl = "http://excel.ap-south-1.elasticbeanstalk.com/news/uploads/";
+                                String imagrurl = Url.imageurl;
                                 String imageurlfull = imagrurl+imagestr;
 
                                 movie.setTitle(obj.getString("headline"));
@@ -137,6 +138,7 @@ public class International extends Fragment{
                                 movie.setYear(obj.getString("category"));
                                 movie.setGenre(obj.getString("updated_at"));
                                 movie.setId(obj.getString("id"));
+                                movie.setName(obj.getString("name"));
 
                                 movieList.add(movie);
 

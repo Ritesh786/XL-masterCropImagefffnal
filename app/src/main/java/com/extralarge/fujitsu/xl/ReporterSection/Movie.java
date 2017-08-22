@@ -12,17 +12,28 @@ public class Movie {
     private String  genre;
     private String id;
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    private String name;
+
     public Movie() {
     }
 
-    public Movie(String name, String thumbnailUrl, String year, String rating,
-                 String genre,String id) {
-        this.title = name;
+    public Movie(String title, String thumbnailUrl, String year, String rating,
+                 String genre,String id,String name) {
+        this.title = title;
         this.thumbnailUrl = thumbnailUrl;
         this.year = year;
         this.rating = rating;
         this.genre = genre;
         this.id = id;
+        this.name = name;
     }
 
     public String getTitle() {

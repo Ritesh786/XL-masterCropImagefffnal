@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_setting"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.extralarge.fujitsu.xl.SettingActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white">
+    <ImageView
+        android:id="@+id/back_image"
+        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/leftarrow"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="10dp"/>
+    <TextView
+        android:id="@+id/excellogo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:gravity="center"
+        android:textColor="#000000"
+        android:layout_marginTop="13dp"
+       android:text="Setting"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="@android:color/darker_gray"
+        android:layout_below="@+id/excellogo"
+        android:layout_marginTop="15dp"
+        />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#00ffffff">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20dp"
+        android:layout_margin="10dp"
+        android:textColor="#000000"
+        android:id="@+id/nottxt"
+        android:text="Notification"/>
+
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/switchButton"
+        android:layout_width="wrap_content"
+          android:layout_toRightOf="@+id/nottxt"
+          android:layout_alignParentRight="true"
+        android:checked="true"
+      android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_height="wrap_content"
+
+        />
+</RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#00ffffff">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:layout_margin="10dp"
+            android:textColor="#000000"
+            android:id="@+id/dndtxt"
+            android:text="DND (10pm to 8am)"/>
+
+        <android.support.v7.widget.SwitchCompat
+            android:id="@+id/switchdndbtn"
+            android:layout_width="wrap_content"
+            android:layout_toRightOf="@+id/dndtxt"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_height="wrap_content"
+
+            />
+    </RelativeLayout>
+
+
+</LinearLayout>
